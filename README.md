@@ -8,10 +8,12 @@ Custom Skill Caps is an OpenMW Lua mod allowing users to set custom maximum valu
 
 ### Skill Progress Menu Key
 Shows a menu containing the current progress of all skills. Needed to view progress for skills above the vanilla cap of 100.
-### Skill Cap
-You cannot raise skills above this value. If set to 0, skills can be raised infinitely. (Default: 0)
-### Cap Skills Individually
-If enabled, each skill will have an individually-adjustable maximum value. If set to 0, the corresponding skill can be raised infinitely. (Default: OFF)
+### Skill Capping Method
+Skills have a configurable maximum value that they cannot be raised above. If set to 0, the corresponding skill can be raised infinitely.
+
+This setting decides whether skills will share one maximum value, use differing maximums if they belong to your character's class, or use completely unique maximums. (Default: Shared)
+### Shared/Major/Minor/Misc./Unique Skill Caps
+(Default: All 0)
 </Details>
 
 ## Installation
@@ -25,14 +27,17 @@ content=CustomSkillCaps.omwscripts
 ### Requirements
 This mod requires OpenMW version 0.49 or later. If your version is too old, a warning will appear in the log. (Press F10 or check openmw.log)
 ### Compatibility
-This should be compatible with anything that doesn't completely override the built-in skill leveling mechanics.
+This should be compatible with anything that doesn't completely override the built-in skill leveling mechanics. However, it must be placed before other Lua mods in your load order.
 ### Known Issues
 Currently, the vanilla stats menu won't show progress for skills above the vanilla cap of 100. This mod includes a keybind for displaying those progress values.
 
+MWscripts or console commands using modskill functions can't increase skills past 100, even with this mod installed.
+
+If you encounter any bugs, please create an issue or inform me some other way.
 ## Credits
 Author: Qlonever
 
-## Source
-This mod can be found on Github: https://github.com/Qlonever/CSC-OpenMW
+## Other Sources
+This mod can be found on Nexus Mods: https://www.nexusmods.com/morrowind/mods/56938
 
-Updates there will be smaller and more frequent.
+Numbered releases will be uploaded there.

@@ -7,6 +7,6 @@ return {
     name = 'CustomSkillCaps',
     version = '1.0.0',
     saveVersion = 1,
-    settingsVersion = 1,
+    settingsVersion = 2,
     minApiVersion = 68
 }

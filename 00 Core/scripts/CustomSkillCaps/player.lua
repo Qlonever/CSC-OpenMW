@@ -21,6 +21,15 @@ local ui = require('openmw.ui')
 local settings = require('scripts.' .. info.name .. '.settings')
 local CSCUI = require('scripts.' .. info.name .. '.ui')
 
+local function contains(t, element)
+  for _, value in pairs(t) do
+    if value == element then
+      return true
+    end
+  end
+  return false
+end
+
 local function capital(text)
     return text:gsub('^%l', string.upper)
 end
@@ -33,20 +42,39 @@ local modSettings = {
     basic = storage.playerSection('SettingsPlayer' .. info.name .. 'Basic')
 }
 
--- Get maximum value for skill depending on settings
-local function getSkillCap(skillid)
-    if modSettings.basic:get('UniqueSkillCap') then
-        return modSettings.basic:get(capital(skillid) .. 'Cap')
-    else
-        return modSettings.basic:get('SkillCap')
-    end
-end
-
 -- Player data
 
-local playerStats = types.Player.stats
+local Player = types.Player
+
+local playerStats = Player.stats
 local levelStat = playerStats.level(self)
 local skillStats = playerStats.skills
+
+local function getPlayerRecords()
+    local playerRecord = Player.record(self)
+    return {
+        class = Player.classes.record(playerRecord.class)
+    }
+end
+
+-- Get maximum value for skill depending on settings and class
+local function getSkillCap(skillid)
+    capMethod = modSettings.basic:get('SkillCapMethod')
+    if capMethod == 'SharedCap' then
+        return modSettings.basic:get('SharedSkillCap')
+    elseif capMethod == 'ClassCap' then
+        local playerRecords = getPlayerRecords()
+        if contains(playerRecords.class.majorSkills, skillid) then
+            return modSettings.basic:get('MajorSkillCap')
+        elseif contains(playerRecords.class.minorSkills, skillid) then
+            return modSettings.basic:get('MinorSkillCap')
+        else
+            return modSettings.basic:get('MiscSkillCap')
+        end
+    elseif capMethod == 'UniqueCap' then
+        return modSettings.basic:get(capital(skillid) .. 'Cap')
+    end
+end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -80,7 +108,7 @@ local function skillLevelUpHandler(skillid, source, params)
     end
 
     local skillRecord = core.stats.Skill.record(skillid)
-    
+
     -- Why are these even here?
     --local npcRecord = NPC.record(self)
     --local class = NPC.classes.record(npcRecord.class)
@@ -94,15 +122,15 @@ local function skillLevelUpHandler(skillid, source, params)
     end
 
     ui.showMessage(message, { showInDialogue = false })
-    
+
     if levelStat.progress >= core.getGMST('iLevelUpTotal') then
         ui.showMessage('#{sLevelUpMsg}', { showInDialogue = false })
     end
 
     if not source or source == I.SkillProgression.SKILL_INCREASE_SOURCES.Usage then skillStat.progress = 0 end
-    
+
     CSCUI.updateProgressMenu(skillid)
-    
+
     return false
 end
 
@@ -120,9 +148,9 @@ local function skillUsedHandler(skillid, params)
     if skillStat.progress >= 1 and (skillCap == 0 or skillStat.base < skillCap) then
         I.SkillProgression.skillLevelUp(skillid, I.SkillProgression.SKILL_INCREASE_SOURCES.Usage)
     end
-    
+
     CSCUI.updateProgressMenu(skillid)
-    
+
     return false
 end
 
@@ -142,34 +170,10 @@ end
 
 input.registerTriggerHandler('Progress' .. info.name, async:callback(progressMenuKey))
 
--- List of specific setting changes for each settings version
--- Used to inform player what settings they need to adjust after updating
-
-local settingsChanges = {
-    [1] = {}
-}
-
 -- Save/load handlers
 
 local function onLoad(data)
-    -- Include values in save data to track breaking changes
-    data.settingsVersion = data.settingsVersion or 1
-    if info.settingsVersion > (data.settingsVersion) then
-        local changeText = ''
-        for i = data.settingsVersion + 1, info.settingsVersion, 1 do
-            for _, settingKey in pairs(settingsChanges[i]) do
-                changeText = changeText .. '\n' .. L(settingKey .. 'Name')
-            end
-        end
-        if changeText ~= '' then
-            ui.showMessage(L('SettingsVersionNew') .. changeText, {showInDialogue = false})
-            print(L('SettingsVersionNew') .. changeText) 
-        end
-    elseif info.settingsVersion < (data.settingsVersion) then
-        ui.showMessage(L('SettingsVersionOld'), {showInDialogue = false})
-        print(L('SettingsVersionOld'))
-    end
-
+    -- Include version in save data to track breaking changes
     if info.saveVersion > data.saveVersion then
         ui.showMessage(L('SaveVersionNew'), {showInDialogue = false})
         print(L('SaveVersionNew'))

@@ -1,22 +1,47 @@
 ModName: "Custom Skill Caps"
 
+# Settings text
+
 PageName: "Custom Skill Caps"
+
+# Basic settings
 
 SettingsBasicName: "Basic Settings"
 
 ProgressKeyName: "Skill Progress Menu Key"
 ProgressKeyDesc: "Shows a menu containing the current progress of all skills. Needed to view progress for skills above the vanilla cap of 100."
 
+SkillCapMethodName: "Skill Capping Method"
+SkillCapMethodDesc: "Skills have a configurable maximum value that they cannot be raised above. If set to 0, the corresponding skill can be raised infinitely.\nThis setting decides whether skills will share one maximum value, use differing maximums if they belong to your character's class, or use completely unique maximums."
+
+SharedCap: "Shared"
+ClassCap: "Class"
+UniqueCap: "Unique"
+
+SharedSkillCapName: "Shared Skill Cap"
+
+MajorSkillCapName: "Major Skill Cap"
+
+MinorSkillCapName: "Minor Skill Cap"
+
+MiscSkillCapName: "Misc. Skill Cap"
+
+UniqueSkillCapName: " Cap"
+
+# Notifications
+
+SaveVersionNew: "[Custom Skill Caps]: You have a newer mod version than the one previously used on this save file. Certain features may not work."
+SaveVersionOld: "[Custom Skill Caps]: You have an older mod version than the one previously used on this save file. Mod-related data may be lost."
+
+SettingsVersionNew: "[Custom Skill Caps]: The following settings have been removed since the previous mod version used by this OpenMW installation:"
+SettingsVersionOld: "[Custom Skill Caps]: You have an older mod version than the one previously used on this OpenMW installation. Certain settings may not have been carried over."
+
+UpdateOpenMW: "[Custom Skill Caps]: This mod requires OpenMW version 0.49 or newer. The version you are using is out of date."
+
+# Removed text
+
 SkillCapName: "Skill Cap"
 SkillCapDesc: "You cannot raise skills above this value. If set to 0, skills can be raised infinitely."
 
 UniqueSkillCapName: "Cap Skills Individually"
 UniqueSkillCapDesc: "If enabled, each skill will have a unique maximum value according to the settings below. If set to 0, the corresponding skill can be raised infinitely."
-
-SaveVersionNew: "[Custom Skill Caps]: You have a newer mod version than the one previously used on this save file. Certain features may not work."
-SaveVersionOld: "[Custom Skill Caps]: You have an older mod version than the one previously used on this save file. Mod-related data may be lost."
-
-SettingsVersionNew: "[Custom Skill Caps]: The following settings have changed since the previous version used by this save, and need to be set again:"
-SettingsVersionOld: "[Custom Skill Caps]: You have an older mod version than the one previously used on this save file. Certain settings may not have been carried over."
-
-UpdateOpenMW: "[Custom Skill Caps]: This mod requires OpenMW version 0.49 or newer. The version you are using is out of date."

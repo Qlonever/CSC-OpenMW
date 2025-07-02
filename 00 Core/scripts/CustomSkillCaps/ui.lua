@@ -7,8 +7,18 @@ local ui = require('openmw.ui')
 local util = require('openmw.util')
 
 local info = require('scripts.CustomSkillCaps.info')
+local myui = require('scripts.' .. info.name .. '.myui')
 
 local v2 = util.vector2
+
+local function contains(t, element)
+  for _, value in pairs(t) do
+    if value == element then
+      return true
+    end
+  end
+  return false
+end
 
 local function capital(text)
     return text:gsub('^%l', string.upper)
@@ -26,12 +36,33 @@ local modSettings = {
     basic = storage.playerSection('SettingsPlayer' .. info.name .. 'Basic')
 }
 
--- Get maximum value for skill depending on settings
-local function getSkillCap(skillId)
-    if modSettings.basic:get('UniqueSkillCap') then
-        return modSettings.basic:get(capital(skillId) .. 'Cap')
-    else
-        return modSettings.basic:get('SkillCap')
+-- Player data
+
+local Player = types.Player
+
+local function getPlayerRecords()
+    local playerRecord = Player.record(self)
+    return {
+        class = Player.classes.record(playerRecord.class)
+    }
+end
+
+-- Get maximum value for skill depending on settings and class
+local function getSkillCap(skillid)
+    capMethod = modSettings.basic:get('SkillCapMethod')
+    if capMethod == 'SharedCap' then
+        return modSettings.basic:get('SharedSkillCap')
+    elseif capMethod == 'ClassCap' then
+        local playerRecords = getPlayerRecords()
+        if contains(playerRecords.class.majorSkills, skillid) then
+            return modSettings.basic:get('MajorSkillCap')
+        elseif contains(playerRecords.class.minorSkills, skillid) then
+            return modSettings.basic:get('MinorSkillCap')
+        else
+            return modSettings.basic:get('MiscSkillCap')
+        end
+    elseif capMethod == 'UniqueCap' then
+        return modSettings.basic:get(capital(skillid) .. 'Cap')
     end
 end
 
@@ -41,57 +72,6 @@ local gameSettings = {
     skillMaxed = core.getGMST('sSkillMaxReached'),
     skillProgress = core.getGMST('sSkillProgress')
 }
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
--- Utility UI functions
-
--- Get a usable color value from a fallback in openmw.cfg
-local function configColor(setting)
-    local v = core.getGMST('FontColor_color_' .. setting)
-    local values = {}
-    for i in v:gmatch('([^,]+)') do table.insert(values, tonumber(i)) end
-    local color = util.color.rgb(values[1]/255, values[2]/255, values[3]/255)
-    return color
-end
-
--- Create a padding template with adjustable size in both axes
-local function padding(sizeH, sizeV)
-    local customPadding = {
-        type = ui.TYPE.Container,
-        content = ui.content {
-            {
-                props = {
-                    size = v2(sizeH, sizeV),
-                },
-            },
-            {
-                external = { slot = true },
-                props = {
-                    position = v2(sizeH, sizeV),
-                    relativeSize = v2(1, 1),
-                },
-            },
-            {
-                props = {
-                    position = v2(sizeH, sizeV),
-                    relativePosition = v2(1, 1),
-                    size = v2(sizeH, sizeV),
-                },
-            },
-        }
-    }
-    return customPadding
-end
-
--- Create a blank widget of specified size
-local function padWidget(sizeH, sizeV)
-    local padLayout = {
-        name = 'padWidget',
-        props = {size = v2(sizeH, sizeV)}
-    }
-    return padLayout
-end
 
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -108,8 +88,8 @@ local menu
 local menuLayout
 
 local colors = {
-    health = configColor('health'),
-    positive = configColor('positive')
+    health = myui.textColors.health,
+    positive = myui.textColors.positive
 }
 
 -- Create an alphabetical list of skills
@@ -137,7 +117,7 @@ local function createSkillFlex(skillId)
                 type = ui.TYPE.Image,
                 props = {resource = resources[skillId], size = v2(32, 32)}
             },
-            padWidget(18, 0),
+            myui.padWidget(18, 0),
             {
                 name = 'infoFlex',
                 type = ui.TYPE.Flex,
@@ -176,7 +156,7 @@ local function createSkillFlex(skillId)
             }
         }
     }
-    
+
     local skillCap = getSkillCap(skillId)
     if skillCap > 0 and types.Player.stats.skills[skillId](self).base >= skillCap then
         skillFlex.content.infoFlex.content.progressFlex.content:add{
@@ -238,7 +218,7 @@ local function createProgressMenuLayout()
         columnLayout = {
             name = specialization,
             type = ui.TYPE.Container,
-            template = padding(16, 16),
+            template = myui.padding(16, 16),
             content = ui.content{
                 {
                     name = 'flex',
