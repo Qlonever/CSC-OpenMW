@@ -1,5 +1,5 @@
 # Custom Skill Caps
-### Ver. 1.0.0
+### Ver. 1.1.0
 Custom Skill Caps is an OpenMW Lua mod allowing users to set custom maximum values for skills. It doesn't change any other mechanics or add any other features.
 
 ## Settings
