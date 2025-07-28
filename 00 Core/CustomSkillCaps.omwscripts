@@ -1,2 +1,2 @@
-PLAYER: scripts/CustomSkillCaps/player.lua
-MENU: scripts/CustomSkillCaps/renderer.lua
+PLAYER: scripts/CustomSkillCaps/p_main.lua
+MENU: scripts/CustomSkillCaps/m_renderer.lua
