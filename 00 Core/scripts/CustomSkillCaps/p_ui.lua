@@ -48,21 +48,21 @@ local function getPlayerRecords()
 end
 
 -- Get maximum value for skill depending on settings and class
-local function getSkillCap(skillid)
+local function getSkillCap(skillId)
     capMethod = modSettings.basic:get('SkillCapMethod')
     if capMethod == 'SharedCap' then
         return modSettings.basic:get('SharedSkillCap')
     elseif capMethod == 'ClassCap' then
         local playerRecords = getPlayerRecords()
-        if contains(playerRecords.class.majorSkills, skillid) then
+        if contains(playerRecords.class.majorSkills, skillId) then
             return modSettings.basic:get('MajorSkillCap')
-        elseif contains(playerRecords.class.minorSkills, skillid) then
+        elseif contains(playerRecords.class.minorSkills, skillId) then
             return modSettings.basic:get('MinorSkillCap')
         else
             return modSettings.basic:get('MiscSkillCap')
         end
     elseif capMethod == 'UniqueCap' then
-        return modSettings.basic:get(capital(skillid) .. 'Cap')
+        return modSettings.basic:get(capital(skillId) .. 'Cap')
     end
 end
 

@@ -6,3 +6,6 @@
 - Added new settings: "Major/Minor/Misc. Skill Cap"
 - Fixed an issue with dependent settings not properly initializing
 - Fixed an issue with settings version detection
+
+## Next
+- Fixed an issue causing the progress menu to disappear when changing cells
