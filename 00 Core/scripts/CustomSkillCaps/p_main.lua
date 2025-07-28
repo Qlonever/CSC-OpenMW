@@ -18,8 +18,8 @@ local storage = require('openmw.storage')
 local types = require('openmw.types')
 local ui = require('openmw.ui')
 
-local settings = require('scripts.' .. info.name .. '.settings')
-local CSCUI = require('scripts.' .. info.name .. '.ui')
+local settings = require('scripts.' .. info.name .. '.p_settings')
+local CSCUI = require('scripts.' .. info.name .. '.p_ui')
 
 local function contains(t, element)
   for _, value in pairs(t) do
