@@ -2,6 +2,8 @@
 local core = require('openmw.core')
 
 local info = require('scripts.CustomSkillCaps.info')
+
+local IName = info.interfaceName
 local L = core.l10n(info.name)
 
 if core.API_REVISION < info.minApiVersion then
@@ -14,33 +16,12 @@ local async = require('openmw.async')
 local I = require('openmw.interfaces')
 local input = require('openmw.input')
 local self = require('openmw.self')
-local storage = require('openmw.storage')
 local types = require('openmw.types')
 local ui = require('openmw.ui')
 
 local settings = require('scripts.' .. info.name .. '.p_settings')
+local interface = require('scripts.' .. info.name .. '.p_interface')
 local CSCUI = require('scripts.' .. info.name .. '.p_ui')
-
-local function contains(t, element)
-  for _, value in pairs(t) do
-    if value == element then
-      return true
-    end
-  end
-  return false
-end
-
-local function capital(text)
-    return text:gsub('^%l', string.upper)
-end
-
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-
--- Mod settings
-
-local modSettings = {
-    basic = storage.playerSection('SettingsPlayer' .. info.name .. 'Basic')
-}
 
 -- Player data
 
@@ -50,32 +31,6 @@ local playerStats = Player.stats
 local levelStat = playerStats.level(self)
 local skillStats = playerStats.skills
 
-local function getPlayerRecords()
-    local playerRecord = Player.record(self)
-    return {
-        class = Player.classes.record(playerRecord.class)
-    }
-end
-
--- Get maximum value for skill depending on settings and class
-local function getSkillCap(skillId)
-    capMethod = modSettings.basic:get('SkillCapMethod')
-    if capMethod == 'SharedCap' then
-        return modSettings.basic:get('SharedSkillCap')
-    elseif capMethod == 'ClassCap' then
-        local playerRecords = getPlayerRecords()
-        if contains(playerRecords.class.majorSkills, skillId) then
-            return modSettings.basic:get('MajorSkillCap')
-        elseif contains(playerRecords.class.minorSkills, skillId) then
-            return modSettings.basic:get('MinorSkillCap')
-        else
-            return modSettings.basic:get('MiscSkillCap')
-        end
-    elseif capMethod == 'UniqueCap' then
-        return modSettings.basic:get(capital(skillId) .. 'Cap')
-    end
-end
-
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
 -- Handlers
@@ -84,7 +39,7 @@ end
 local function skillLevelUpHandler(skillId, source, params)
     local skillStat = skillStats[skillId](self)
     -- Check against modded skill cap instead of 100
-    local skillCap = getSkillCap(skillId)
+    local skillCap = I[IName].getSkillCap(skillId)
     if skillCap ~= 0 and skillStat.base >= skillCap then 
         return false 
     end
@@ -143,7 +98,7 @@ local function skillUsedHandler(skillId, params)
     local skillStat = skillStats[skillId](self)
     skillStat.progress = skillStat.progress + params.skillGain / I.SkillProgression.getSkillProgressRequirement(skillId)
 
-    local skillCap = getSkillCap(skillId)
+    local skillCap = I[IName].getSkillCap(skillId)
     -- The built-in handler doesn't check if the skill has reached its cap, but this one does
     if skillStat.progress >= 1 and (skillCap == 0 or skillStat.base < skillCap) then
         I.SkillProgression.skillLevelUp(skillId, I.SkillProgression.SKILL_INCREASE_SOURCES.Usage)
@@ -200,5 +155,7 @@ return {
     engineHandlers = {
         onLoad = onLoad,
         onSave = onSave
-    }
+    },
+    interfaceName = IName,
+    interface = interface
 }
