@@ -177,7 +177,7 @@ local function createSkillFlex(skillId)
                 {
                     name = 'color',
                     type = ui.TYPE.Image,
-                    props = {resource = resources.barColor, color = colors.health, size = v2(196 * progress, 16)}
+                    props = {resource = resources.barColor, color = colors.health, size = v2(196 * math.min(progress, 1), 16)}
                 },
                 {
                     name = 'progress',
